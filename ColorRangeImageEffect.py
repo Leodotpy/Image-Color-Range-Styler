@@ -10,9 +10,6 @@ date = time.time()
 # get timestamp
 print(date)
 print('Loading image . . .')
-# size of frame
-height = 1080
-width = 1920
 
 # grab an input image
 image_path = "input\city.jpg"
