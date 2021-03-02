@@ -13,7 +13,7 @@ This effect takes ranges of colours in an image.  It then applies a filter to an
 Add an image to the input folder, choose the colors to apply, and run the script.
 
 * This program uses Python version 3.8
-* make sure to install all required packages in the requirements.txt file
+* make sure to install all required packages (openCV and numpy)
 
 # Contributing:
 If you would like to contribute to this project, please focus on optimization and extra features!
