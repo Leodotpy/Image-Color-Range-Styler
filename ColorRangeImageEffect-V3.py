@@ -2,19 +2,21 @@ import cv2
 import numpy as np
 import datetime
 import time
+import csv
+import numpy
 
 
 # create size of screen
-date = time.time()
+startTime = time.time()
 
 # get timestamp
-print(date)
+#print(date)
 print('Loading image . . .')
 
 # grab an input image
-image_path = "input\city.jpg"
+image_path = r"input\city.jpg"
 
-file_image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+file_image = numpy.array(cv2.imread(image_path, cv2.IMREAD_UNCHANGED))
 
 try:
     # split all channels from the image (this order is correct)
@@ -22,54 +24,79 @@ try:
 except:
     b, g, r = cv2.split(file_image)
 
-# discord's colors
-disBlue = 114, 137, 218  # rgb(114, 137, 218)
-disWhite = 255, 255, 255  # rgb(255, 255, 255)
-disGray1 = 153, 170, 181  # rgb(153, 170, 181)
-disGray2 = 44, 47, 51  # rgb(44, 47, 51)
-disGray3 = 35, 39, 42  # rgb(35, 39, 42)
+# Import theme colors from csv file
+selectedThemeFile = r'Themes\discord.csv'
+theme = []
+
+with open(str(selectedThemeFile)) as themeInput:
+    themeReader = csv.reader(themeInput)
+    for row in themeReader:
+        theme.append(row)
 
 
-def getMaxColorAverage(b, g, r):
+def getColorInfo(b, g, r):
 
-    maxB = 0
-    maxG = 0
-    maxR = 0
+    maxAddedRGB = 0
+
+    addRGB = b
 
     for i in range(len(b)):
         for x in range(len(b[0])):
+            tmpRGB = numpy.sum((b[i][x])+(g[i][x])+(r[i][x]))
 
-            if b[i][x] > maxB:
-                maxB = int(b[i][x])
+            if tmpRGB > maxAddedRGB:
+                maxAddedRGB = tmpRGB
 
-            if g[i][x] > maxG:
-                maxG = int(g[i][x])
+            addRGB[i][x] = tmpRGB
 
-            if r[i][x] > maxR:
-                maxR = int(r[i][x])
-    print("calculated max colors RGB: ")
-    print(maxR, maxG, maxB)
-    maxAverage = (maxB + maxG + maxR)/3
-    return maxAverage
+    return maxAddedRGB, addRGB
 
 
-maxAverage = getMaxColorAverage(b, g, r)
+maxAddedRGB, addRGB = getColorInfo(b, g, r)
 
-# set quartile ranges
-Q1 = (maxAverage/5)*1
-Q2 = (maxAverage/5)*2
-Q3 = (maxAverage/5)*3
-Q4 = (maxAverage/5)*4
-Q5 = (maxAverage/5)*5
+# for setting quartile ranges
+Q = (maxAddedRGB/len(theme))
 
-# for testing purposes set the quartiles manually
-'''Q1 = 30  # disBlue
-Q2 = 110  # disGray2
-Q3 = 157  # disGray3
-Q4 = 180  # disGray1
-Q5 = 255  # disWhite'''
+Qscaled = ((maxAddedRGB*3)/(len(theme)))
+
+print(Q, Qscaled)
+
+print(len(file_image), len(addRGB))
+
+for i in range(len(file_image)):
+    for z in range(len(file_image[0])):
+
+        if int(addRGB[i][z]) < int(Qscaled):
+            r[i][z] = theme[0][0]
+            g[i][z] = theme[0][1]
+            b[i][z] = theme[0][2]
+        elif int(addRGB[i][z]) < int(Qscaled*2):
+            r[i][z] = theme[1][0]
+            g[i][z] = theme[1][1]
+            b[i][z] = theme[1][2]
 
 
+final_image = cv2.merge([b,g,r])
+
+# save image
+#exportName = input("Enter a name for the image: ")
+exportName = 'test'
+cv2.imwrite("output/"+str(exportName)+".png", final_image)
+
+endTime = time.time() - startTime
+print("total runtime: "+ endTime)
+
+# display on screen
+cv2.imshow('drawn', final_image)
+
+# exit on keypress
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+
+'''
 def type1(img):
     b, g, r = cv2.split(img)
 
@@ -213,17 +240,9 @@ def type2(img):
 
     return img
 
-
 # apply all effects to the initial image
 final_image = type2(file_image)
 
-# display on screen
-cv2.imshow('drawn', final_image)
 
-# save image
-exportName = input("Enter a name for the image: ")
-cv2.imwrite("output/"+str(exportName)+".png", final_image)
+'''
 
-# exit on keypress
-cv2.waitKey(0)
-cv2.destroyAllWindows()
