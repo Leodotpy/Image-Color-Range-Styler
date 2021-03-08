@@ -65,6 +65,8 @@ print(len(file_image), len(addRGB))
 
 for i in range(len(file_image)):
     for z in range(len(file_image[0])):
+        
+        numpy.
 
         if int(addRGB[i][z]) < int(Qscaled):
             r[i][z] = theme[0][0]

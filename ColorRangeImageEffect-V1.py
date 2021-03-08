@@ -73,9 +73,6 @@ Q5 = 255  # disWhite'''
 def type1(img):
     b, g, r = cv2.split(img)
 
-    averageColor = 0
-    toDivide = 0
-
     for i in range(len(img)):
         for z in range(len(img[0])):
 
@@ -150,8 +147,6 @@ def type2(img):
         b, g, r = cv2.split(img)
         return type2noAlpha(b, g, r)
 
-    averageColor = 0
-    toDivide = 0
 
     maxR = 0
     maxG = 0
